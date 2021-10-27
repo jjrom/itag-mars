@@ -1,2 +1,6 @@
-# itag-mars-datasources
-iTag datasources for planet Mars
+# itag-mars
+iTag Taggers and datasources for planet Mars
+
+## Installation
+
+    docker-compose up -d

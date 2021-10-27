@@ -15,7 +15,7 @@
  * under the License.
  */
 
-class MarsgeologyTagger extends GenericTagger
+class MarsGeologyTagger extends GenericTagger
 {
 
     /*
@@ -43,7 +43,7 @@ class MarsgeologyTagger extends GenericTagger
      * Columns mapping per table
      */
     protected $columnsMapping = array(
-        'geo_units_oc_dd' => array(
+        'geologic_unit' => array(
             'name' => 'unitname',
             'symbol' => 'unitsymbol'
         )
@@ -86,23 +86,30 @@ class MarsgeologyTagger extends GenericTagger
      */
     private function getGeology($rawResults)
     {
-        
+
         $geology = array();
-        foreach ($sums as $key => $val) {
-            $pcover = $this->percentage($this->toSquareKm($val), $this->area);
-            if ($val !== 0 && $pcover > 0) {
-                $name = $this->clcClassNames[$key] ?? 'unknown';
-                array_push($landCover, array(
-                    'name' => $name,
-                    'id' => 'landcover'. iTag::TAG_SEPARATOR . strtolower($name),
-                    'area' => $this->toSquareKm($val),
-                    'pcover' => $pcover
-                ));
-            }
+
+        if ( isset($rawResults['geologic_unit']) )
+        {
+
+            for ($i = 0, $ii = count($rawResults['geologic_unit']); $i < $ii; $i++) {
+                if ( !isset($geology[$rawResults['geologic_unit'][$i]['symbol']]) ) {
+                    $geology[$rawResults['geologic_unit'][$i]['symbol']] = array(
+                        'id' => 'geologicunit'. iTag::TAG_SEPARATOR . strtolower($rawResults['geologic_unit'][$i]['symbol']),
+                        'name' => ucfirst($rawResults['geologic_unit'][$i]['name']),
+                        'pcover' => $rawResults['geologic_unit'][$i]['pcover']
+                    );
+                }
+                else {
+                    $geology[$rawResults['geologic_unit'][$i]['symbol']]['pcover'] += $rawResults['geologic_unit'][$i]['pcover'];
+                }
+            }    
+
         }
 
-        return $landCover;
+        return array(
+            'geologic_units' => array_values($geology)
+        );
     }
-
 
 }

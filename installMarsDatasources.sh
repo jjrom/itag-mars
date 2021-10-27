@@ -62,14 +62,14 @@ do
 	esac
 done
 
-if [ ! -f ${ENV_FILE} ]; then
+if [ ! -f "${ENV_FILE}" ]; then
     showUsage
     echo -e "${RED}[ERROR]${NC} Missing or invalid config file!"
     echo ""
     exit 0
 fi
 
-if [ ! -d "${DATA_DIR}"]; then
+if [ ! -d "${DATA_DIR}" ]; then
     showUsage
     echo -e "${RED}[ERROR]${NC} You must specify a data directory!"
     echo ""
@@ -92,9 +92,12 @@ PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d 
 CREATE SCHEMA IF NOT EXISTS mars;
 EOF
 
+echo -e "[INFO] Retrieve jjrom/shp2pgsql docker image"
+docker pull jjrom/shp2pgsql
+
 SHP2PGSQL="docker run --rm -v ${DATA_DIR}:/data:ro jjrom/shp2pgsql"
 
 # ================================================================================
 echo -e "[INFO] Install Mars 15M Geologic Map GIS Renovation from [USGS]"
-${SHP2PGSQL} -g geom -d -W ${ENCODING} -s 4326 -I /data/I1802ABC_Mars2000_Sphere/geo_units_oc_dd.shp mars.geo_units_oc_dd 2> /dev/null | PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} > /dev/null 2>errors.log
+${SHP2PGSQL} -g geom -d -W ${ENCODING} -s 4326 -I /data/I1802ABC_Mars2000_Sphere/geo_units_oc_dd.shp mars.geologic_unit 2> /dev/null | PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} > /dev/null 2>errors.log
 echo -e "${GREEN}[INFO] Mars 15M Geologic Map GIS Renovation installed${NC}"
