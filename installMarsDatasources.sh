@@ -98,6 +98,21 @@ docker pull jjrom/shp2pgsql
 SHP2PGSQL="docker run --rm -v ${DATA_DIR}:/data:ro jjrom/shp2pgsql"
 
 # ================================================================================
-echo -e "[INFO] Install Mars 15M Geologic Map GIS Renovation from [USGS]"
+echo -e "[INFO] Install Mars 15M Geologic Map GIS Renovation from USGS"
 ${SHP2PGSQL} -g geom -d -W ${ENCODING} -s 4326 -I /data/I1802ABC_Mars2000_Sphere/geo_units_oc_dd.shp mars.geologic_unit 2> /dev/null | PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} > /dev/null 2>errors.log
-echo -e "${GREEN}[INFO] Mars 15M Geologic Map GIS Renovation installed${NC}"
+
+echo -e "[INFO] Install Mars Healpix order 1 to 4"
+PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} << EOF
+CREATE TABLE IF NOT EXISTS mars.healpix (
+    level       INTEGER NOT NULL,
+    pix         INTEGER NOT NULL,
+    geom        GEOMETRY(GEOMETRY, 4326),
+    PRIMARY KEY (level, pix)
+);
+EOF
+PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} -f ${DATA_DIR}/healpix_order1.sql > /dev/null 2>errors.log
+PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} -f ${DATA_DIR}/healpix_order2.sql > /dev/null 2>errors.log
+PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} -f ${DATA_DIR}/healpix_order3.sql > /dev/null 2>errors.log
+PGPASSWORD=${ITAG_DATABASE_USER_PASSWORD} psql -U ${ITAG_DATABASE_USER_NAME} -d ${ITAG_DATABASE_NAME} -h ${DATABASE_HOST_SEEN_FROM_DOCKERHOST} -p ${ITAG_DATABASE_EXPOSED_PORT} -f ${DATA_DIR}/healpix_order4.sql > /dev/null 2>errors.log
+
+
