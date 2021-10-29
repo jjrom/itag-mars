@@ -15,7 +15,7 @@
  * under the License.
  */
 
-class MarsGeologyTagger extends GenericTagger
+class HealpixTagger extends GenericTagger
 {
 
     /*
