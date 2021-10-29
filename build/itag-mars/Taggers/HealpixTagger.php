@@ -22,6 +22,11 @@ class HealpixTagger extends GenericTagger
      * This Tagger is specific to Mars
      */
     public $planet = 'mars';
+
+    /*
+     * Data references
+     */
+    public $references = array();
     
     /*
      * Columns mapping per table
